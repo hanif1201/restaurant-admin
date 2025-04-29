@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+body {
+  @apply bg-gray-100;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Toast notifications styling */
+.Toastify__toast-container {
+  @apply z-50;
+}
+
+.Toastify__toast {
+  @apply rounded-md shadow-md;
+}
+
+.Toastify__toast--success {
+  @apply bg-green-50 text-green-900;
+}
+
+.Toastify__toast--error {
+  @apply bg-red-50 text-red-900;
+}
+
+.Toastify__toast--warning {
+  @apply bg-yellow-50 text-yellow-900;
+}
+
+.Toastify__toast--info {
+  @apply bg-blue-50 text-blue-900;
+}
+
+/* Input focus ring styling */
+input:focus-visible, 
+select:focus-visible, 
+textarea:focus-visible,
+button:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Form elements animations */
+input, select, textarea, button {
+  @apply transition-all duration-200;
+}
+
+/* Page transitions */
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
