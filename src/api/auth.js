@@ -4,7 +4,16 @@ const authService = {
   // Login function
   login: async (credentials) => {
     try {
+      // Add debug logging
+      console.log("Sending login request with:", {
+        email: credentials.email,
+        passwordLength: credentials.password?.length,
+      });
+
       const response = await api.post("/auth/login", credentials);
+
+      // Add debug logging
+      console.log("Login response:", response.data);
 
       // If login is successful, store the token and user info
       if (response.data.success) {
@@ -14,6 +23,7 @@ const authService = {
 
       return response.data;
     } catch (error) {
+      console.error("Login error details:", error.response?.data || error);
       throw error.response ? error.response.data : error;
     }
   },

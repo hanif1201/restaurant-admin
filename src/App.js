@@ -31,7 +31,7 @@ import OrderDetail from "./pages/Orders/OrderDetail";
 import ProfilePage from "./pages/Settings/Profile";
 import AccountPage from "./pages/Settings/Account";
 import BusinessHoursPage from "./pages/Settings/BusinessHours";
-// import AnalyticsPage from "./pages/Analytics/Analytics";
+import AnalyticsPage from "./pages/Analytics/Analytics";
 
 // Utilities
 import useAuth from "./hooks/useAuth";
@@ -110,7 +110,7 @@ const App = () => {
               <Route path='/settings/hours' element={<BusinessHoursPage />} />
 
               {/* Analytics route */}
-              {/* <Route path='/analytics' element={<AnalyticsPage />} /> */}
+              <Route path='/analytics' element={<AnalyticsPage />} />
             </Route>
 
             {/* Default redirect to dashboard or login */}

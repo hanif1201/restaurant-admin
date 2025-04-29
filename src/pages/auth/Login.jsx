@@ -27,12 +27,22 @@ const Login = () => {
       setLoading(true);
       const result = await login(data);
 
-      if (!result || !result.success) {
-        error(result?.error || "Login failed");
+      if (!result) {
+        error("Authentication failed - please try again");
+        return;
+      }
+
+      if (!result.success) {
+        error(result.message || result.error || "Invalid credentials");
+        return;
       }
     } catch (err) {
       console.error("Login error:", err);
-      error(err.message || "Login failed");
+      error(
+        err.response?.data?.message ||
+          err.message ||
+          "Authentication failed - please try again"
+      );
     } finally {
       setLoading(false);
     }
