@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 // Context providers
 import { AuthProvider } from "./contexts/AuthContext";
 import { AlertProvider } from "./contexts/AlertContext";
+import { RestaurantProvider } from "./contexts/RestaurantContext";
 
 // Layouts
 import MainLayout from "./layouts/MainLayout";
@@ -70,56 +71,58 @@ const App = () => {
   return (
     <AuthProvider>
       <AlertProvider>
-        <Router>
-          <Routes>
-            {/* Auth routes */}
-            <Route path='/' element={<AuthLayout />}>
-              <Route path='/login' element={<Login />} />
-              <Route path='/forgot-password' element={<ForgotPassword />} />
+        <RestaurantProvider>
+          <Router>
+            <Routes>
+              {/* Auth routes */}
+              <Route path='/' element={<AuthLayout />}>
+                <Route path='/login' element={<Login />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route
+                  path='/reset-password/:token'
+                  element={<ResetPassword />}
+                />
+              </Route>
+
+              {/* Main application routes - protected */}
               <Route
-                path='/reset-password/:token'
-                element={<ResetPassword />}
-              />
-            </Route>
+                path='/'
+                element={
+                  <ProtectedRoute>
+                    <RestaurantRoute>
+                      <MainLayout />
+                    </RestaurantRoute>
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
 
-            {/* Main application routes - protected */}
-            <Route
-              path='/'
-              element={
-                <ProtectedRoute>
-                  <RestaurantRoute>
-                    <MainLayout />
-                  </RestaurantRoute>
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
+                {/* Menu routes */}
+                <Route path='/menu' element={<MenuPage />} />
+                <Route path='/menu/add' element={<AddMenuItem />} />
+                <Route path='/menu/edit/:id' element={<EditMenuItem />} />
 
-              {/* Menu routes */}
-              <Route path='/menu' element={<MenuPage />} />
-              <Route path='/menu/add' element={<AddMenuItem />} />
-              <Route path='/menu/edit/:id' element={<EditMenuItem />} />
+                {/* Order routes */}
+                <Route path='/orders' element={<OrdersPage />} />
+                <Route path='/orders/:id' element={<OrderDetail />} />
 
-              {/* Order routes */}
-              <Route path='/orders' element={<OrdersPage />} />
-              <Route path='/orders/:id' element={<OrderDetail />} />
+                {/* Settings routes */}
+                <Route path='/settings/profile' element={<ProfilePage />} />
+                <Route path='/settings/account' element={<AccountPage />} />
+                <Route path='/settings/hours' element={<BusinessHoursPage />} />
 
-              {/* Settings routes */}
-              <Route path='/settings/profile' element={<ProfilePage />} />
-              <Route path='/settings/account' element={<AccountPage />} />
-              <Route path='/settings/hours' element={<BusinessHoursPage />} />
+                {/* Analytics route */}
+                <Route path='/analytics' element={<AnalyticsPage />} />
+              </Route>
 
-              {/* Analytics route */}
-              <Route path='/analytics' element={<AnalyticsPage />} />
-            </Route>
+              {/* Default redirect to dashboard or login */}
+              <Route path='*' element={<Navigate to='/' />} />
+            </Routes>
+          </Router>
 
-            {/* Default redirect to dashboard or login */}
-            <Route path='*' element={<Navigate to='/' />} />
-          </Routes>
-        </Router>
-
-        {/* Toast notifications container */}
-        <ToastContainer position='top-right' autoClose={5000} />
+          {/* Toast notifications container */}
+          <ToastContainer position='top-right' autoClose={5000} />
+        </RestaurantProvider>
       </AlertProvider>
     </AuthProvider>
   );
