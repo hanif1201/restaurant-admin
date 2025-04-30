@@ -11,7 +11,12 @@ import Card from "../common/Card";
 import OrderStatusUpdate from "./OrderStatusUpdate";
 
 const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
-  if (!order) return null;
+  console.log("OrderDetails received order:", order);
+
+  if (!order) {
+    console.log("No order data provided to OrderDetails");
+    return null;
+  }
 
   // Format date
   const formatDate = (dateString) => {
@@ -28,7 +33,10 @@ const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
 
   // Format currency
   const formatCurrency = (amount) => {
-    return `$${amount.toFixed(2)}`;
+    if (amount === undefined || amount === null) {
+      return "$0.00";
+    }
+    return `$${Number(amount).toFixed(2)}`;
   };
 
   // Get status badge class
@@ -204,7 +212,7 @@ const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
       <Card title='Order Items'>
         <div className='flow-root'>
           <ul className='divide-y divide-gray-200'>
-            {order.items.map((item, index) => (
+            {order.items?.map((item, index) => (
               <li key={index} className='py-4'>
                 <div className='flex items-center space-x-4'>
                   <div className='flex-shrink-0'>
@@ -217,7 +225,7 @@ const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
                       {item.name}
                     </p>
                     <p className='text-sm text-gray-500'>
-                      {formatCurrency(item.price)} × {item.quantity}
+                      {formatCurrency(item.price || 0)} × {item.quantity || 1}
                     </p>
 
                     {/* Customizations */}
@@ -240,7 +248,7 @@ const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
                     )}
                   </div>
                   <div className='flex-shrink-0 text-sm font-medium text-gray-900'>
-                    {formatCurrency(item.subtotal)}
+                    {formatCurrency(item.subtotal || 0)}
                   </div>
                 </div>
               </li>
@@ -253,36 +261,36 @@ const OrderDetails = ({ order, onUpdateStatus, loading = false }) => {
           <div className='flex justify-between text-sm'>
             <p className='text-gray-500'>Subtotal</p>
             <p className='font-medium text-gray-900'>
-              {formatCurrency(order.subtotal)}
+              {formatCurrency(order.subtotal || 0)}
             </p>
           </div>
 
           <div className='flex justify-between text-sm mt-2'>
             <p className='text-gray-500'>Delivery Fee</p>
             <p className='font-medium text-gray-900'>
-              {formatCurrency(order.deliveryFee)}
+              {formatCurrency(order.deliveryFee || 0)}
             </p>
           </div>
 
           <div className='flex justify-between text-sm mt-2'>
             <p className='text-gray-500'>Tax</p>
             <p className='font-medium text-gray-900'>
-              {formatCurrency(order.taxAmount)}
+              {formatCurrency(order.taxAmount || 0)}
             </p>
           </div>
 
-          {order.discount > 0 && (
+          {(order.discount || 0) > 0 && (
             <div className='flex justify-between text-sm mt-2'>
               <p className='text-gray-500'>Discount</p>
               <p className='font-medium text-green-600'>
-                -{formatCurrency(order.discount)}
+                -{formatCurrency(order.discount || 0)}
               </p>
             </div>
           )}
 
           <div className='flex justify-between text-base font-medium mt-4 pt-4 border-t border-gray-200'>
             <p className='text-gray-900'>Total</p>
-            <p className='text-gray-900'>{formatCurrency(order.total)}</p>
+            <p className='text-gray-900'>{formatCurrency(order.total || 0)}</p>
           </div>
         </div>
       </Card>

@@ -6,12 +6,12 @@ import OrderFilter from "../../components/orders/OrderFilter";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import useAuth from "../../hooks/useAuth";
+import useRestaurant from "../../hooks/useRestaurant";
 import useAlert from "../../hooks/useAlert";
 import orderService from "../../api/orders";
 
 const Orders = () => {
-  const { restaurant } = useAuth();
+  const { restaurant } = useRestaurant();
   const { error } = useAlert();
   const navigate = useNavigate();
 
@@ -27,10 +27,14 @@ const Orders = () => {
   // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!restaurant) return;
+      if (!restaurant) {
+        console.log("No restaurant data in Orders component");
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log("Fetching orders for restaurant:", restaurant._id);
 
         // Prepare query parameters
         const queryParams = {};
@@ -48,10 +52,15 @@ const Orders = () => {
         }
 
         const response = await orderService.getOrders(queryParams);
+        console.log("Orders response:", response);
 
         if (response.success) {
+          // Ensure we have the data array before processing
+          const ordersData = response.data || [];
+          console.log("Processing orders data:", ordersData);
+
           // If search term is provided, filter orders client-side
-          let filteredOrders = response.data.data;
+          let filteredOrders = ordersData;
 
           if (filters.searchTerm) {
             const searchLower = filters.searchTerm.toLowerCase();
@@ -64,6 +73,7 @@ const Orders = () => {
             );
           }
 
+          console.log("Setting filtered orders:", filteredOrders.length);
           setOrders(filteredOrders);
         }
       } catch (err) {

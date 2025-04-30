@@ -5,13 +5,13 @@ import PageTitle from "../../components/common/PageTitle";
 import OrderDetails from "../../components/orders/OrderDetails";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import useAuth from "../../hooks/useAuth";
+import useRestaurant from "../../hooks/useRestaurant";
 import useAlert from "../../hooks/useAlert";
 import orderService from "../../api/orders";
 
 const OrderDetail = () => {
   const { id } = useParams();
-  const { restaurant } = useAuth();
+  const { restaurant } = useRestaurant();
   const { success, error } = useAlert();
   const navigate = useNavigate();
 
@@ -22,21 +22,28 @@ const OrderDetail = () => {
   // Fetch order details
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!restaurant || !id) return;
+      if (!restaurant || !id) {
+        console.log("Missing restaurant or order ID:", { restaurant, id });
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log("Fetching order:", id);
         const response = await orderService.getOrder(id);
+        console.log("Order response:", response);
 
-        if (response.success) {
+        if (response.success && response.data) {
+          console.log("Setting order data:", response.data);
           setOrder(response.data);
         } else {
+          console.log("Order not found or invalid response:", response);
           error("Order not found");
           navigate("/orders");
         }
       } catch (err) {
         console.error("Error fetching order details:", err);
-        error("Failed to load order details");
+        error(err.message || "Failed to load order details");
         navigate("/orders");
       } finally {
         setLoading(false);

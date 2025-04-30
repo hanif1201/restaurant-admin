@@ -1,83 +1,49 @@
 import api from "./index";
 
-const menuService = {
-  // Get all menu items for the restaurant
-  getMenuItems: async (restaurantId) => {
+const orderService = {
+  getOrders: async (params = {}) => {
     try {
-      const response = await api.get(`/menu?restaurant=${restaurantId}`);
-      return response.data;
+      console.log("Fetching orders with params:", params);
+      const response = await api.get("/orders", { params });
+      console.log("Orders API response:", response.data);
+
+      // Return just the data array from the response
+      return {
+        success: response.data.success,
+        data: response.data.data || [],
+      };
     } catch (error) {
-      throw error.response ? error.response.data : error;
+      console.error("Error in getOrders:", error);
+      throw error.response?.data || error;
     }
   },
 
-  // Get a specific menu item
-  getMenuItem: async (id) => {
+  getOrder: async (id) => {
     try {
-      const response = await api.get(`/menu/${id}`);
-      return response.data;
+      console.log("Fetching order details:", id);
+      const response = await api.get(`/orders/${id}`);
+      console.log("Order details response:", response.data);
+      return {
+        success: response.data.success,
+        data: response.data.data,
+      };
     } catch (error) {
-      throw error.response ? error.response.data : error;
+      console.error("Error in getOrder:", error);
+      throw error.response?.data || error;
     }
   },
 
-  // Create a new menu item
-  createMenuItem: async (menuItemData) => {
+  updateOrderStatus: async (id, status) => {
     try {
-      const response = await api.post("/menu", menuItemData);
+      console.log("Updating order status:", { id, status });
+      const response = await api.put(`/orders/${id}/status`, { status });
+      console.log("Update status response:", response.data);
       return response.data;
     } catch (error) {
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  // Update a menu item
-  updateMenuItem: async (id, menuItemData) => {
-    try {
-      const response = await api.put(`/menu/${id}`, menuItemData);
-      return response.data;
-    } catch (error) {
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  // Delete a menu item
-  deleteMenuItem: async (id) => {
-    try {
-      const response = await api.delete(`/menu/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  // Toggle menu item availability
-  toggleAvailability: async (id) => {
-    try {
-      const response = await api.put(`/menu/${id}/toggle-availability`);
-      return response.data;
-    } catch (error) {
-      throw error.response ? error.response.data : error;
-    }
-  },
-
-  // Upload menu item image
-  uploadImage: async (id, imageFile) => {
-    try {
-      const formData = new FormData();
-      formData.append("image", imageFile);
-
-      const response = await api.post(`/menu/${id}/image`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      return response.data;
-    } catch (error) {
-      throw error.response ? error.response.data : error;
+      console.error("Error in updateOrderStatus:", error);
+      throw error.response?.data || error;
     }
   },
 };
 
-export default menuService;
+export default orderService;

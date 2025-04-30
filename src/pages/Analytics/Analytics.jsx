@@ -4,12 +4,12 @@ import PageTitle from "../../components/common/PageTitle";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import SalesChart from "../../components/dashboard/SalesChart";
-import useAuth from "../../hooks/useAuth";
+import useRestaurant from "../../hooks/useRestaurant";
 import useAlert from "../../hooks/useAlert";
 import restaurantService from "../../api/restaurant";
 
 const Analytics = () => {
-  const { restaurant } = useAuth();
+  const { restaurant } = useRestaurant();
   const { error } = useAlert();
 
   const [timeframe, setTimeframe] = useState("week");

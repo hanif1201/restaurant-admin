@@ -4,20 +4,21 @@ const restaurantService = {
   // Get restaurant profile
   getRestaurantProfile: async () => {
     try {
-      // First get the user to find the restaurant ID
+      console.log("Fetching restaurant profile...");
       const userResponse = await api.get("/auth/me");
+      console.log("User data:", userResponse.data);
       const userId = userResponse.data.data._id;
 
-      // Get restaurants for this user
       const response = await api.get(`/restaurants?user=${userId}`);
+      console.log("Restaurant data:", response.data);
 
-      // If restaurant exists, return the first one (assuming a user owns one restaurant)
       if (response.data.data.length > 0) {
         return response.data.data[0];
       } else {
         throw new Error("No restaurant found for this user");
       }
     } catch (error) {
+      console.error("Error in getRestaurantProfile:", error);
       throw error.response ? error.response.data : error;
     }
   },
@@ -74,12 +75,20 @@ const restaurantService = {
   // Get restaurant analytics
   getAnalytics: async (id, period = "30days") => {
     try {
+      console.log(`Fetching analytics for restaurant ${id}, period: ${period}`);
       const response = await api.get(
         `/restaurants/${id}/analytics?period=${period}`
       );
+      console.log("Analytics response:", response.data);
       return response.data;
     } catch (error) {
-      throw error.response ? error.response.data : error;
+      console.error("Error in getAnalytics:", error);
+      throw (
+        error.response?.data || {
+          success: false,
+          message: "Failed to fetch analytics",
+        }
+      );
     }
   },
 };

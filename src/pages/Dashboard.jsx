@@ -10,13 +10,14 @@ import StatCard from "../components/dashboard/StatCard";
 import RecentOrders from "../components/dashboard/RecentOrders";
 import SalesChart from "../components/dashboard/SalesChart";
 import Card from "../components/common/Card";
-import useAuth from "../hooks/useAuth";
+import useRestaurant from "../hooks/useRestaurant";
 import useAlert from "../hooks/useAlert";
 import orderService from "../api/orders";
 import restaurantService from "../api/restaurant";
+import menuService from "../api/menu";
 
 const Dashboard = () => {
-  const { restaurant } = useAuth();
+  const { restaurant } = useRestaurant();
   const { error } = useAlert();
 
   const [stats, setStats] = useState({
@@ -30,37 +31,50 @@ const Dashboard = () => {
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!restaurant) return;
+      if (!restaurant) {
+        console.log("No restaurant data available");
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log("Fetching dashboard data for restaurant:", restaurant._id);
 
         // Get orders for stats
         const ordersResponse = await orderService.getOrders();
+        console.log("Orders response:", ordersResponse);
 
         // Get recent orders
-        setRecentOrders(ordersResponse.data.data.slice(0, 5));
+        setRecentOrders(ordersResponse.data?.data?.slice(0, 5) || []);
 
         // Get analytics
         const analyticsResponse = await restaurantService.getAnalytics(
           restaurant._id
         );
+        console.log("Analytics response:", analyticsResponse);
 
         if (analyticsResponse.success) {
-          // Calculate stats
-          const pendingOrders = ordersResponse.data.data.filter(
-            (order) => order.status === "pending"
-          ).length;
+          // Calculate stats from orders data
+          const orders = ordersResponse.data?.data || [];
 
-          // Get today's orders
-          const today = new Date().toISOString().split("T")[0];
-          const todayOrders = ordersResponse.data.data.filter(
-            (order) =>
-              new Date(order.createdAt).toISOString().split("T")[0] === today
+          // Calculate pending orders - make sure to check case-sensitivity
+          const pendingOrders = orders.filter(
+            (order) => order.status.toLowerCase() === "pending"
           ).length;
+          console.log("Pending orders count:", pendingOrders);
+
+          // Get today's orders - use proper date comparison
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const todayOrders = orders.filter((order) => {
+            const orderDate = new Date(order.createdAt);
+            orderDate.setHours(0, 0, 0, 0);
+            return orderDate.getTime() === today.getTime();
+          }).length;
+          console.log("Today's orders count:", todayOrders);
 
           setStats({
             todayOrders,
@@ -69,16 +83,8 @@ const Dashboard = () => {
             averageRating: restaurant.averageRating || 0,
           });
 
-          // Format sales data for chart
-          if (analyticsResponse.data.salesByDay) {
-            setSalesData(
-              analyticsResponse.data.salesByDay.map((item) => ({
-                date: item.date,
-                revenue: item.revenue,
-                orderCount: item.orderCount,
-              }))
-            );
-          }
+          // Set sales data for chart
+          setSalesData(analyticsResponse.data.salesByDay || []);
         }
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
