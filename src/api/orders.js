@@ -5,12 +5,20 @@ const orderService = {
     try {
       console.log("Fetching orders with params:", params);
       const response = await api.get("/orders", { params });
-      console.log("Orders API response:", response.data);
+      console.log("Orders API raw response:", response);
 
-      // Return just the data array from the response
+      // The response structure is { success: true, data: [...orders] }
+      const orders = response.data?.data || [];
+      console.log("Processed orders:", {
+        count: orders.length,
+        sample: orders[0],
+        structure: orders.length > 0 ? Object.keys(orders[0]) : [],
+      });
+
+      // Return the orders array directly
       return {
-        success: response.data.success,
-        data: response.data.data || [],
+        success: true,
+        data: orders, // Don't nest data twice
       };
     } catch (error) {
       console.error("Error in getOrders:", error);

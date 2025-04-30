@@ -42,12 +42,21 @@ const Dashboard = () => {
         setLoading(true);
         console.log("Fetching dashboard data for restaurant:", restaurant._id);
 
-        // Get orders for stats
+        // Get orders
         const ordersResponse = await orderService.getOrders();
         console.log("Orders response:", ordersResponse);
 
-        // Get recent orders
-        setRecentOrders(ordersResponse.data?.data?.slice(0, 5) || []);
+        // Get the orders array
+        const orders = ordersResponse.data || []; // No need for .data twice
+        console.log("Orders data:", {
+          hasData: orders.length > 0,
+          length: orders.length,
+          firstOrder: orders[0],
+          statuses: orders.map((o) => o.status),
+        });
+
+        // Set recent orders
+        setRecentOrders(orders.slice(0, 5));
 
         // Get analytics
         const analyticsResponse = await restaurantService.getAnalytics(
@@ -55,27 +64,26 @@ const Dashboard = () => {
         );
         console.log("Analytics response:", analyticsResponse);
 
-        if (analyticsResponse.success) {
-          // Calculate stats from orders data
-          const orders = ordersResponse.data?.data || [];
-
-          // Calculate pending orders - make sure to check case-sensitivity
+        if (analyticsResponse.success && orders.length > 0) {
+          // Count pending orders
           const pendingOrders = orders.filter(
             (order) => order.status.toLowerCase() === "pending"
           ).length;
-          console.log("Pending orders count:", pendingOrders);
+          console.log("Found pending orders:", pendingOrders);
 
-          // Get today's orders - use proper date comparison
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          // Get today's orders (most recent date)
+          const dates = orders.map((order) => new Date(order.createdAt));
+          const mostRecentDate = new Date(Math.max(...dates));
+          mostRecentDate.setHours(0, 0, 0, 0);
 
           const todayOrders = orders.filter((order) => {
             const orderDate = new Date(order.createdAt);
             orderDate.setHours(0, 0, 0, 0);
-            return orderDate.getTime() === today.getTime();
+            return orderDate.getTime() === mostRecentDate.getTime();
           }).length;
-          console.log("Today's orders count:", todayOrders);
+          console.log("Found today's orders:", todayOrders);
 
+          // Update stats
           setStats({
             todayOrders,
             pendingOrders,
@@ -83,7 +91,7 @@ const Dashboard = () => {
             averageRating: restaurant.averageRating || 0,
           });
 
-          // Set sales data for chart
+          // Set sales data
           setSalesData(analyticsResponse.data.salesByDay || []);
         }
       } catch (err) {
